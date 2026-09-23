@@ -54,12 +54,12 @@ The goal is for a Pro user to finish **2–4 tasks per window** (fewer when they
 - Sub-tasks are not separate sessions. They are save points *inside* one session, so that a task cut off by the usage limit can resume from the last checked sub-task.
 
 ## Model hint (per task)
-Give every task a `Model:` hint. `next-task` uses it to run light tasks on a cheaper model, which saves usage. A Pro window stretches much further on Sonnet than on Opus.
+Give every task a `Model:` hint. It names a **tier**, not a specific model, so plans work in any agent. `next-task` uses it to run light tasks on the fast or cheap tier, which saves usage. A usage window stretches much further on the fast tier (e.g. Claude Sonnet) than on the strongest one (e.g. Claude Opus).
 
-| Hint | Runs on | Use for |
+| Hint | Runs on (Claude example) | Use for |
 |---|---|---|
-| `light` | Sonnet | Scaffolding, config, CRUD following an existing pattern, UI built from existing components, copy and styling changes, simple tests, docs, deploy steps from a known guide |
-| `heavy` | Opus | Data model or schema design, auth and security, payments, concurrency, non-trivial algorithms, the first use of a new integration, cross-cutting refactors, debugging something unclear, spike tasks that end in a decision |
+| `light` | Fast tier (Sonnet) | Scaffolding, config, CRUD following an existing pattern, UI built from existing components, copy and styling changes, simple tests, docs, deploy steps from a known guide |
+| `heavy` | Strongest tier (Opus) | Data model or schema design, auth and security, payments, concurrency, non-trivial algorithms, the first use of a new integration, cross-cutting refactors, debugging something unclear, spike tasks that end in a decision |
 
 Default to `light`. Choose `heavy` only when a wrong decision would be expensive to undo, or when the task needs real reasoning rather than following a pattern.
 

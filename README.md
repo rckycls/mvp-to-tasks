@@ -6,6 +6,8 @@ Claude Pro gives you a limited amount of usage every 5 hours. Build anything rea
 
 **MVP to Tasks plans your build around that limit.** It splits your idea into tasks that each fit in one session. Each task saves its progress as it goes, so a cut-off costs you minutes, not the whole session. Easy tasks run on a cheaper model, so your usage lasts longer.
 
+It's built for Claude Code but also works in **Codex, Cursor, Gemini CLI, GitHub Copilot** and [other agents that support skills](#works-with-other-agents).
+
 ```bash
 npx skills add https://github.com/rckycls/mvp-to-tasks --skill '*'
 ```
@@ -14,15 +16,15 @@ npx skills add https://github.com/rckycls/mvp-to-tasks --skill '*'
 |---|---|---|
 | **Hit the limit mid-task** | The next chat doesn't know where you stopped | Say "next task". It resumes from the last finished step. |
 | **Starting a new chat** | Re-paste the spec; Claude re-reads the codebase | It reads a one-page summary plus the notes it needs |
-| **Easy tasks** ("add a settings page") | Run on the top model | Run on Sonnet; Opus is saved for the hard parts |
+| **Easy tasks** ("add a settings page") | Run on the top model | Run on a faster model (e.g. Sonnet); the strongest (e.g. Opus) is saved for the hard parts |
 | **Planning** | One huge to-do list | Phases → tasks sized to about 2–4 per usage window |
 
 It comes as two skills that work together:
 
 | Skill | What you say | What happens |
 |---|---|---|
-| **mvp-to-tasks** | "Break down my MVP" | Claude reads your idea and turns it into a plan: **phases → tasks → small steps**. |
-| **next-task** | "Next task" | Claude builds the next piece of the plan, saves its progress, and leaves a note for next time. |
+| **mvp-to-tasks** | "Break down my MVP" | Your agent reads your idea and turns it into a plan: **phases → tasks → small steps**. |
+| **next-task** | "Next task" | Your agent builds the next piece of the plan, saves its progress, and leaves a note for next time. |
 
 ---
 
@@ -46,7 +48,7 @@ Each task is broken into a few small steps. After each step, Claude ticks it off
 The plan keeps a **one-page project summary** plus a **short note from each finished task** ("built the login, here's how it works, watch out for X"). A new session reads only the summary and the notes it needs, not your whole spec, codebase or old chats.
 
 **4. The right model for each task.**
-Every task is labeled **light** or **heavy**. In Claude Code, light tasks run on Sonnet and heavy ones (login, payments, database design) run on Opus, so your usage goes further. On claude.ai, Claude tells you which model to pick.
+Every task is labeled **light** or **heavy**. Light tasks run on a faster, cheaper model, and heavy ones (login, payments, database design) run on your strongest model, so your usage goes further. In Claude Code this happens automatically (Sonnet for light, Opus for heavy). In other apps, your agent tells you which model to pick.
 
 ---
 
@@ -84,8 +86,8 @@ Add `-g` at the end to install for all your projects. Needs [Node.js](https://no
 
 > **You:** Break down my MVP. *(then paste your spec, describe your idea, or run it inside your project folder)*
 
-Claude will:
-1. Ask a few questions, such as which plan you're on and whether you want a file, tickets in your project tool, or both.
+Your agent will:
+1. Ask a few questions, such as which AI tool and plan you're on and whether you want a file, tickets in your project tool, or both.
 2. Show you a one-page summary of your project and wait for your OK.
 3. Show you the full plan to review and edit.
 4. Save the plan, create the tickets, or both.
@@ -94,7 +96,7 @@ Claude will:
 
 > **You:** Next task
 
-Claude picks the next task, builds it, tests it, writes a short note for next time, and stops.
+Your agent picks the next task, builds it, tests it, writes a short note for next time, and stops.
 **Start a fresh chat for each task.** This keeps every session small and cheap.
 
 That's it. Repeat step 2 until your MVP is done.
@@ -125,11 +127,11 @@ See the full example in [`skills/mvp-to-tasks/examples/tutorbook`](skills/mvp-to
 
 ## Works with your project tool (optional)
 
-The plan can go straight into **Linear, Jira, Trello**, or most other tools Claude can connect to. Phases become milestones or epics, tasks become tickets, and steps become sub-tasks. Claude always shows you what it's about to create and waits for your OK.
+The plan can go straight into **Linear, Jira, Trello**, or most other tools your agent can connect to. Phases become milestones or epics, tasks become tickets, and steps become sub-tasks. Your agent always shows you what it's about to create and waits for your OK.
 
 **To connect your tool:**
 - **claude.ai:** go to **Settings → Connectors** and add it.
-- **Claude Code:** add the tool's MCP server.
+- **Claude Code, Codex, Cursor, Gemini CLI and other coding agents:** add the tool's MCP server.
 
 No tool? You still get a `tasks.md` file, plus a CSV you can import later.
 
@@ -150,11 +152,28 @@ They're plain text, so you can read and edit them yourself.
 
 ---
 
+## Works with other agents
+
+These are standard [Agent Skills](https://agentskills.io): plain folders with a `SKILL.md`. They work in any agent that supports skills. Your plan is plain files and git, so you can even switch agents partway through a build.
+
+| Feature | Claude Code | Codex, Cursor, Gemini CLI, Copilot, etc. | claude.ai / desktop |
+|---|---|---|---|
+| Plan: phases → tasks → steps | ✅ | ✅ | ✅ (files to download) |
+| Save points, resume after a cut-off | ✅ | ✅ | ✅ |
+| Handoff notes, proof before "done", phase checks | ✅ | ✅ | ✅ |
+| Linear / Jira / Trello | ✅ via MCP | ✅ via MCP, where supported | ✅ via Connectors |
+| Light/heavy model routing | ✅ automatic | Recommends a model; you switch | Recommends a model; you switch |
+| Task sizing | Tuned for Claude Pro/Max | Uses the cautious Pro profile | Tuned for Claude Pro/Max |
+
+The plan checker needs [Node.js](https://nodejs.org). Without it, the agent checks the same rules by hand.
+
+---
+
 ## Good to know
 
 - **Task sizes are estimates.** How much fits in a usage window depends on your project and how much debugging happens. Tasks are sized with plenty of margin, and if one does get cut off, you just resume.
-- **On Max plans?** Tell Claude when it asks, and it'll make tasks a bit bigger.
-- **Automatic model switching only works in Claude Code.** On other apps, every task runs on whichever model you've selected.
+- **On Claude Max, or a bigger plan elsewhere?** Say so when asked, and tasks will be a bit bigger.
+- **Automatic model switching needs subagent support** (Claude Code today). Elsewhere, every task runs on the model you've selected, and the agent tells you when a different one would suit it better.
 - **Nothing gets created in your project tool without your OK.**
 
 ## License

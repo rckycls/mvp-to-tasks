@@ -1,6 +1,6 @@
 ---
 name: next-task
-description: Works through an MVP plan made by mvp-to-tasks one task per session, loading only lean context (the project brief, the handoff notes of the tasks it depends on, and the task's listed files) so each session stays inside a Pro plan's 5-hour usage window. Checks off sub-tasks as checkpoints, resumes interrupted tasks, writes a short handoff note for the next session, runs light tasks on Sonnet and heavy tasks on Opus (via a subagent in Claude Code; recommends a model in claude.ai), and syncs status to Linear/Jira/Trello if linked. Use when the user says "next task", "continue the MVP", "work on T-012", "resume", or "what's next".
+description: Works through an MVP plan made by mvp-to-tasks one task per session, loading only lean context (the project brief, the handoff notes of the tasks it depends on, and the task's listed files) so each session stays inside a usage-limited plan's window (tuned for Claude Pro's 5-hour limit; works in any agent that supports skills). Checks off sub-tasks as checkpoints, resumes interrupted tasks, writes a short handoff note for the next session, runs light tasks on a fast model and heavy tasks on the strongest one (automatically via subagents where available, e.g. Claude Code; otherwise recommends a model), and syncs status to Linear/Jira/Trello if linked. Use when the user says "next task", "continue the MVP", "work on T-012", "resume", or "what's next".
 ---
 
 # Next task: build one task with lean context
@@ -34,9 +34,16 @@ The previous session may have been cut off by the usage limit with no warning, s
 5. **Say what you found** in 1–2 lines before continuing, e.g. "T-004: sub-tasks 1–2 done; found a half-written `ProjectForm.tsx` from sub-task 3. Keeping it and finishing sub-task 3."
 
 ## Model routing
-Every task has a `Model:` hint. `light` runs on **Sonnet** and `heavy` runs on **Opus**. If the hint is missing, treat the task as `light`. If the user asks for a specific model ("use Opus for this"), that choice wins. Say the choice in one line, e.g. "T-004 is light, so it runs on Sonnet to save usage."
+Every task has a `Model:` hint that names a **tier**, not a specific model:
 
-**If you can start a subagent with a chosen model (Claude Code):** hand Steps 3–6 to a subagent on the matching model. In the main session, do only Steps 1–2 and Step 7.
+| Hint | Tier | Claude | Other agents |
+|---|---|---|---|
+| `light` | Fast/cheap tier | Sonnet | The agent's smaller or faster model |
+| `heavy` | Strongest tier | Opus | The agent's most capable (reasoning) model |
+
+Use the model names of whatever agent you're running in. If you don't know which of your models fits a tier, say so, and use the current model. If the hint is missing, treat the task as `light`. If the user asks for a specific model ("use the big model for this"), that choice wins. Say the choice in one line, e.g. "T-004 is light, so it runs on the faster model to save usage."
+
+**If you can start a subagent (or sub-task/worker agent) on a chosen model, as in Claude Code:** hand Steps 3–6 to a subagent on the matching tier. In the main session, do only Steps 1–2 and Step 7.
 - **Write the subagent prompt so it stands on its own.** It won't see this conversation. Include:
   - the task ID and title
   - the paths to `.mvp/brief.md`, `.mvp/tasks.md` and `.mvp/handoffs/`
@@ -46,13 +53,13 @@ Every task has a `Model:` hint. `light` runs on **Sonnet** and `heavy` runs on *
 - **When the subagent returns,** check that the task's sub-tasks are ticked and that the handoff (or `.wip.md`) exists, then do Step 7.
 - **If the chosen model isn't available** (plan or organization limits), fall back to the session's model and say so.
 
-**Escalation.** If a Sonnet subagent comes back with a `[escalate]` line in the `.wip.md`, start a **new Opus subagent** to resume the same task. Give it the resume point and the `[escalate]` note, so it starts from what was tried instead of from scratch. Tell the user in one line, e.g. "T-006 was harder than planned; switching to Opus to finish it." In the handoff's Gotchas, note that the task needed Opus, so similar future tasks can be tagged `heavy`. Escalate only once per task: if Opus fails too, stop and ask the user.
+**Escalation.** If a fast-tier subagent comes back with a `[escalate]` line in the `.wip.md`, start a **new strongest-tier subagent** to resume the same task. Give it the resume point and the `[escalate]` note, so it starts from what was tried instead of from scratch. Tell the user in one line, e.g. "T-006 was harder than planned; switching to the stronger model to finish it." In the handoff's Gotchas, note that the task needed the strongest tier, so similar future tasks can be tagged `heavy`. Escalate only once per task: if the strongest tier fails too, stop and ask the user.
 
-When you can't choose a model (see below) and hit an `[escalate]`, tell the user: "This light task is stuck on the current model. Switching to Opus in the model picker and saying 'next task' will resume it." Then stop.
+When you can't choose a model (see below) and hit an `[escalate]`, tell the user: "This light task is stuck on the current model. Switching to your strongest model and saying 'next task' will resume it." Then stop.
 
-**If you can't choose a model** (claude.ai, or no subagent support): do Steps 3–6 yourself. If the hint doesn't match the model the user has selected, say so in one line before starting, then continue on the current model without waiting. Use one of these:
-- Light task on Opus: "This task is light; Sonnet is enough and uses less of your limit. You can switch in the model picker, or I'll continue as is."
-- Heavy task on Sonnet or Haiku: "This task is heavy (e.g. auth/data model); Opus is recommended. Switch in the model picker if you'd like."
+**If you can't choose a model** (e.g. claude.ai, or any agent without subagents): do Steps 3–6 yourself. If the hint doesn't match the model the user has selected, say so in one line before starting, then continue on the current model without waiting. Name the models of the tool you're running in:
+- Light task on the strongest model: "This task is light; a faster model (e.g. Sonnet) is enough and uses less of your limit. You can switch models, or I'll continue as is."
+- Heavy task on a fast model: "This task is heavy (e.g. auth/data model); your strongest model (e.g. Opus) is recommended. Switch models if you'd like."
 
 ## Step 3: Load lean context. Only this.
 Read these and nothing else to start:

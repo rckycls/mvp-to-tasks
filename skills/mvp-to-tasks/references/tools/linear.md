@@ -1,6 +1,6 @@
 # Linear
 
-Connect it through claude.ai **Settings → Connectors → Linear**, or with the Linear MCP server in Claude Code. Tool names vary by connector version. Look for tools that list teams, projects, milestones, labels and issues, and tools that save or create issues, milestones and comments.
+Connect it through your app's connectors (claude.ai: **Settings → Connectors → Linear**) or by adding the Linear MCP server to your coding agent (Claude Code, Codex, Cursor, Gemini CLI and others). Tool names vary by connector version. Look for tools that list teams, projects, milestones, labels and issues, and tools that save or create issues, milestones and comments.
 
 ## Mapping
 | Plan | Linear |

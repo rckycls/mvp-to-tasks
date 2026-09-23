@@ -1,6 +1,6 @@
 # Plan budgets
 
-Claude's paid plans limit usage over a rolling **5-hour window**. How much work fits in one window depends on the model, the codebase size, how much gets read, and how many debugging loops happen, so none of this can be measured precisely ahead of time. These profiles use **proxies** that usually keep a task well inside a window. When you're unsure, size smaller.
+Claude's paid plans limit usage over a rolling **5-hour window**. Other AI tools have their own limits (per window, per day or per month). The Pro profile is a cautious default for any of them. How much work fits in one window depends on the model, the codebase size, how much gets read, and how many debugging loops happen, so none of this can be measured precisely ahead of time. These profiles use **proxies** that usually keep a task well inside a window. When you're unsure, size smaller.
 
 Tell the user that these are guidelines. If a task hits the limit anyway, it can resume from its last checked sub-task.
 
@@ -10,13 +10,14 @@ Tell the user that these are guidelines. If a task hits the limit anyway, it can
 | **Max 5x** | ≤ 12 | ≤ 12 | ≤ 4 | ≤ 1 | 4–6 |
 | **Max 20x** | ≤ 15 | ≤ 15 | ≤ 5 | ≤ 2 | many |
 | **Unknown / API / Team** | Use Pro | | | | |
+| **Other tools** (Codex, Cursor, Gemini, Copilot…) | Use Pro | | | | Limits differ by tool and plan; Pro is the cautious default |
 
 Keep tasks small even on the Max plans. Smaller tasks produce better handoffs and clearer history, and they are easier to review. The larger profiles mainly allow slightly bigger vertical slices and fewer spike tasks.
 
 ## Estimating windows for the plan
-Heavy tasks run on Opus, which uses up the limit faster than Sonnet, so weight each task by both its size and its model (Pro):
+Heavy tasks run on the strongest tier (e.g. Opus), which uses up the limit faster than the fast tier (e.g. Sonnet), so weight each task by both its size and its model (Pro):
 
-| | light (Sonnet) | heavy (Opus) |
+| | light (fast tier) | heavy (strongest tier) |
 |---|---|---|
 | S | 0.2 | 0.35 |
 | M | 0.3 | 0.5 |

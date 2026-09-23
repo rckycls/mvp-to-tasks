@@ -1,6 +1,6 @@
 # Jira
 
-Connect it through claude.ai **Settings → Connectors → Atlassian**, or with the Atlassian MCP server in Claude Code. Look for tools that list projects and issue types, create or edit issues, link issues, and add comments.
+Connect it through your app's connectors (claude.ai: **Settings → Connectors → Atlassian**) or by adding the Atlassian MCP server to your coding agent (Claude Code, Codex, Cursor, Gemini CLI and others). Look for tools that list projects and issue types, create or edit issues, link issues, and add comments.
 
 ## Mapping
 | Plan | Jira |

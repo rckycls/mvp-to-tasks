@@ -27,5 +27,5 @@ Keep the scan lean. Its purpose is to classify features, not to understand every
 - Leave built features out of the plan. Partial features become "finish X" tasks that point at the relevant files.
 
 ## Also collect
-- **Claude plan:** Pro (the default), Max 5x or Max 20x. This picks the profile in `plan-budgets.md`.
+- **AI tool and plan:** Claude Pro (the default), Max 5x, Max 20x, or another tool. This picks the profile in `plan-budgets.md`.
 - **Output:** `tasks.md`, PM tool, or both. If a PM tool, which one.
