@@ -1,0 +1,13 @@
+{
+  "name": "mvp-to-tasks",
+  "owner": {
+    "name": "Rocky Celis"
+  },
+  "plugins": [
+    {
+      "name": "mvp-to-tasks",
+      "source": "./",
+      "description": "Plan an MVP into usage-window-sized tasks (tasks.md and/or Linear, Jira, Trello) and build it one lean-context session at a time."
+    }
+  ]
+}

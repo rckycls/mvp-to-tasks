@@ -1,0 +1,20 @@
+{
+  "name": "mvp-to-tasks",
+  "version": "0.1.0",
+  "description": "Turn an MVP into phases, tasks and sub-tasks sized to fit a Claude Pro 5-hour usage window, output to tasks.md and/or Linear, Jira, Trello or other PM tools, then build one task per session with lean context handoffs.",
+  "author": {
+    "name": "Rocky Celis"
+  },
+  "keywords": [
+    "mvp",
+    "planning",
+    "tasks",
+    "linear",
+    "jira",
+    "trello",
+    "project-management"
+  ],
+  "homepage": "https://github.com/rckycls/mvp-to-tasks",
+  "repository": "https://github.com/rckycls/mvp-to-tasks",
+  "license": "MIT"
+}
