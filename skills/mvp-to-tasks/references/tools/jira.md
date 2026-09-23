@@ -25,4 +25,8 @@ Use the same content as the Linear template (goal, acceptance criteria, "Context
 4. Write the URLs back into tasks.md if it exists.
 
 ## CSV fallback
-Jira uses **System → External system import → CSV**, or the project's import. Map Phase to Epic Link or Parent, and Parent ID to Parent.
+1. Generate the file: `node <skill dir>/scripts/export-plan.mjs .mvp jira > .mvp/plan-jira.csv`
+   - Ask whether the project calls its types **Story** or **Task**, and **Subtask** or **Sub-task**. Company-managed projects often use `Sub-task`. Pass `--task-type` and `--subtask-type` to match. A type name that doesn't match causes a "work type" error on import.
+2. Tell the user how to import it. Jira's hierarchy rules only work in the **CSV external system import**: **Settings (⚙️) → System → External system import → CSV**. The quick "Import work items" option in a project **can't** build parent/child links.
+3. On the field-mapping screen, map `Work item ID` → **Work item ID**, `Work type` → **Work type**, `Parent` → **Parent**, `Summary` → **Summary**, `Description` → **Description** and `Labels` → **Labels**. All three of ID, Work type and Parent must be mapped, or Jira shows *"Missing work types"*.
+4. Dependencies ("Depends on") are listed in each description. They aren't created as Jira links.

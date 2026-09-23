@@ -28,8 +28,12 @@ Use the goal, the acceptance criteria as a second checklist or as text, and "Con
 2. Create the cards in task order, then add the checklists.
 3. Write the card URLs back into tasks.md if it exists.
 
-## CSV fallback
-Trello has no native CSV import on free plans. Offer instead:
-- the tasks.md file, or
-- a Power-Up or third-party import, or
-- creating the cards manually from the preview.
+## Fallback (no connector)
+Trello has **no native CSV import**. Its built-in import is copy-paste: pasting multi-line text into a list creates one card per line.
+
+1. Generate paste-ready text: `node <skill dir>/scripts/export-plan.mjs .mvp trello > .mvp/plan-trello.txt`
+2. The user creates one list per phase (Layout B), clicks **Add a card**, pastes that phase's block, and confirms **Create N cards**.
+3. This only creates card **titles** (`T-xxx · Title [size, heavy]`). Descriptions and checklists stay in tasks.md, which is fine because next-task reads tasks.md, not Trello.
+4. For full cards with descriptions, checklists and labels, the options are:
+   - a Trello MCP connector (create the items directly, as above), or
+   - an import Power-Up such as "Import to Trello by Blue Cat" or Excelefy, using the generic CSV (`export-plan.mjs .mvp generic`). These are third-party, so the user maps the columns in the Power-Up.

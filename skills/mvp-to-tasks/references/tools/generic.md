@@ -22,4 +22,4 @@
 4. **Tell the user your mapping** in the preview before you create anything.
 5. **Always keep the "T-xxx · " prefix** in titles, so the `next-task` skill can match items to tasks.md.
 
-If you can't find the tool's connector, fall back to tasks.md plus a CSV, and mention that most tools can import CSV.
+If you can't find the tool's connector, fall back to tasks.md plus a CSV generated with `node <skill dir>/scripts/export-plan.mjs .mvp generic`, and mention that most tools can import CSV.

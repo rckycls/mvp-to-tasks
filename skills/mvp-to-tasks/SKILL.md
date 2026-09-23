@@ -1,6 +1,6 @@
 ---
 name: mvp-to-tasks
-description: Turns an MVP (a written spec/PRD, a rough idea, or an existing codebase) into phases, then tasks and sub-tasks, each sized so an AI coding agent can finish it in one session within a usage limit (tuned for Claude Pro's 5-hour window; works with Claude Code, Codex, Cursor, Gemini and other skill-compatible agents). Writes a lean project brief plus tasks.md, creates the items directly in Linear, Jira, Trello or another connected PM tool, or does both. Use when the user says things like "break down my MVP", "turn this MVP into tasks", "plan phases for my product", "make a tasks.md from this idea", or "create Linear/Jira/Trello tickets from my spec".
+description: Turns an MVP (a written spec/PRD, a rough idea, or an existing codebase) into phases, then tasks and sub-tasks, each sized so an AI coding agent can finish it in one session within a usage limit (tuned for Claude Pro's 5-hour window; works with Claude Code, Codex, Cursor, Gemini and other skill-compatible agents). Writes a lean project brief plus tasks.md, creates the items directly in Linear, Jira, Trello, GitHub Issues/Projects or another connected PM tool, or does both. Use when the user says things like "break down my MVP", "turn this MVP into tasks", "plan phases for my product", "make a tasks.md from this idea", or "create Linear/Jira/Trello/GitHub issues from my spec".
 ---
 
 # MVP → Phases → Tasks
@@ -107,10 +107,10 @@ If you can't write to a filesystem (for example in a chat app such as claude.ai)
 
 ### Direct to PM tool
 1. **Detect the tool.** Check which PM connector/MCP tools are available.
-   - Load the matching guide: `references/tools/linear.md`, `jira.md`, `trello.md`, or `generic.md` for any other tool.
+   - Load the matching guide: `references/tools/linear.md`, `jira.md`, `trello.md`, `github.md` (GitHub Issues and Projects), or `generic.md` for any other tool.
    - If no PM tool is connected, say so and explain how to connect one in the app they're using:
      - in chat apps, through the app's connectors or integrations settings (claude.ai: **Settings → Connectors**);
-     - in coding agents, by adding the tool's MCP server (Claude Code: `claude mcp add`). Codex, Cursor, Gemini CLI and most other agents support MCP as well. Then fall back to tasks.md plus the importable CSV described in the tool guide.
+     - in coding agents, by adding the tool's MCP server (Claude Code: `claude mcp add`). Codex, Cursor, Gemini CLI and most other agents support MCP as well. Then fall back to tasks.md plus an import file generated with `scripts/export-plan.mjs` (see "Import files" in `references/file-formats.md`, and the tool guide's fallback section).
 2. **Pick the destination.** List the teams, projects or boards from the tool, and ask the user where the items should go.
 3. **Preview → gate.** Show exactly what will be created: containers, items, sub-items and fields. **Create nothing until the user explicitly says yes.**
 4. **Create the items in this order:**

@@ -114,9 +114,22 @@ _Done: <YYYY-MM-DD>_
 
 ---
 
-## Importable CSV (fallback when no connector is available)
+## Import files (fallback when no connector is available)
 
-Columns: `ID,Title,Description,Phase,Size,Model,Depends On,Parent ID`
-- Put each phase in the `Phase` column, and put sub-tasks on their own rows with `Parent ID` filled in.
-- The `Description` includes the goal, acceptance criteria and "Context to load".
-- Point the user to their tool's CSV import. The tool guides give the field mapping for each tool.
+**Don't write import files by hand.** Generate them from tasks.md, because every tool has strict, different import rules:
+
+```
+node <this skill's dir>/scripts/export-plan.mjs .mvp <target> [options] > <output file>
+```
+
+| Target | Output | What it produces | Import with |
+|---|---|---|---|
+| `jira` | `.mvp/plan-jira.csv` | Phases → **Epic**, tasks → **Story**, steps → **Subtask**. Uses the numeric `Work item ID`, `Work type` and `Parent` columns Jira requires for hierarchy, with sequential IDs and parents first. Options: `--task-type Task`, `--subtask-type Sub-task`. | Jira's **External system import → CSV** (see `tools/jira.md`) |
+| `linear` | `.mvp/plan-linear.csv` | Linear's own CSV export format: one row per task, the phase as a label (labels joined with `", "`), priority as text, steps as a checklist in the description. | `npx @linear/import` → **Linear (CSV export)** (see `tools/linear.md`) |
+| `github` | `.mvp/plan-github.sh` | A `gh` CLI script. Phases → **milestones**, tasks → **issues** with labels, steps → a checklist, or real **sub-issues** with `--sub-issues`. `--project "Title"` also adds each issue to a GitHub Project board. Writes `.mvp/github-map.txt` (task ID → issue URL). | `bash .mvp/plan-github.sh` (see `tools/github.md`) |
+| `trello` | `.mvp/plan-trello.txt` | Paste-ready text, one block per phase. Pasting lines into a Trello list creates one card per line. | Paste (see `tools/trello.md`) |
+| `generic` | `.mvp/plan.csv` | One row per phase, task and step, with `ID`, `Type` and `Parent ID` columns. | Asana, ClickUp, Notion, spreadsheets and similar tools |
+
+Every task description includes the goal, the acceptance criteria, dependencies, the Model hint and "Context to load". Then tell the user how to import it, using the tool guide's **fallback** section.
+
+If Node isn't available, write the file by hand, following the same columns and rules exactly.

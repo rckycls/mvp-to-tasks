@@ -34,4 +34,11 @@ _Part of the MVP plan (mvp-to-tasks). Handoff notes are posted as comments when 
 4. If tasks.md exists, write each URL into that task's `Link:` field.
 
 ## CSV fallback
-Linear imports CSV under **Settings → Import/Export**. Map ID to the title prefix, Phase to a label, and Parent ID to parent.
+Linear's in-app importers only cover other tools (Jira, Asana, GitHub, Shortcut). There's **no generic CSV upload**. A CSV goes through Linear's **command-line importer** instead, which accepts files in Linear's own export format.
+
+1. Generate the file: `node <skill dir>/scripts/export-plan.mjs .mvp linear > .mvp/plan-linear.csv`
+   - It has these columns: `Title, Description, Priority, Estimate, Labels, Status`.
+   - Labels are joined with `", "` (comma space), which is how the importer splits them. Priority is text (`No priority`). Status must match a workflow state name in the team (`Todo` and `Done` by default).
+2. The user runs **`npx @linear/import`** and chooses **"Linear (CSV export)"**, the CSV path, and the target team. It asks for a **Linear API key** (Settings → Security & access → Personal API keys). The user enters it themselves; never ask for it or type it in.
+3. Each task becomes an issue titled `T-xxx · Title`, with the phase as a label and the steps as a checklist in the description.
+4. **Limits:** this importer ignores parent links and doesn't create projects or milestones. For milestones per phase and real sub-issues, use the Linear MCP connector and create the items directly instead. That's the better option whenever it's available.
