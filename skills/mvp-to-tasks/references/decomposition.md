@@ -16,7 +16,7 @@ Put the core loop as early as possible. A thin end-to-end slice is worth more th
 
 ## Tasks
 - **Vertical slices over horizontal layers.** "Create project: API + form + list view" is better than separate "all APIs" and "all UI" tasks.
-- **One deliverable** per task, with **acceptance criteria** someone can check in a couple of minutes (a test passes, a page renders, a curl request returns X).
+- **One deliverable** per task, with **1–3 acceptance criteria** (separated by semicolons) that someone can check in a couple of minutes (a test passes, a page renders, a curl request returns X). Needing more than 3 means the task should be split.
 - **Dependencies** point only to earlier task IDs, and there must be no cycles.
 - **Order tasks inside a phase** so that the first unblocked task is always the most valuable next step.
 

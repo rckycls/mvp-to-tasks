@@ -1,6 +1,21 @@
 # MVP to Tasks
 
-**Have an idea for an app? This turns it into a step-by-step build plan, then helps Claude build it one small piece at a time, without running into your usage limit halfway through.**
+### Build your MVP on Claude Pro without hitting the usage limit mid-task.
+
+Claude Pro gives you a limited amount of usage every 5 hours. Build anything real and you'll hit that limit halfway through a feature, then spend the next session getting Claude back up to speed.
+
+**MVP to Tasks plans your build around that limit.** It splits your idea into tasks that each fit in one session. Each task saves its progress as it goes, so a cut-off costs you minutes, not the whole session. Easy tasks run on a cheaper model, so your usage lasts longer.
+
+```bash
+npx skills add https://github.com/rckycls/mvp-to-tasks --skill '*'
+```
+
+| | Without it | With it |
+|---|---|---|
+| **Hit the limit mid-task** | The next chat doesn't know where you stopped | Say "next task". It resumes from the last finished step. |
+| **Starting a new chat** | Re-paste the spec; Claude re-reads the codebase | It reads a one-page summary plus the notes it needs |
+| **Easy tasks** ("add a settings page") | Run on the top model | Run on Sonnet; Opus is saved for the hard parts |
+| **Planning** | One huge to-do list | Phases → tasks sized to about 2–4 per usage window |
 
 It comes as two skills that work together:
 
@@ -13,9 +28,9 @@ It comes as two skills that work together:
 
 ## The problem this solves
 
-If you've built something bigger than a toy with Claude, you've probably hit these:
+If you've built something bigger than a toy on the Pro plan, you've probably hit these:
 
-- **You run out of usage partway through a task.** The Pro plan limits how much you can use Claude in a 5-hour window. Big tasks get cut off halfway, and the next chat has no idea where you stopped.
+- **You run out of usage partway through a task.** Big tasks get cut off halfway, and the next chat has no idea where you stopped.
 - **You keep re-explaining your project.** Every new chat starts from zero, so you paste the spec again, Claude re-reads the codebase, and a big chunk of your usage goes on catching up.
 - **Everything runs on the most expensive model,** even the easy stuff like "add a settings page".
 

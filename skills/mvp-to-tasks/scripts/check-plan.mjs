@@ -28,7 +28,17 @@ for (const block of md.split(/\n(?=### )/).slice(1)) {
   if (handoffs.length > P.maxHandoffs) problems.push(`${id}: ${handoffs.length} handoffs > ${P.maxHandoffs}`);
   if (files.length > P.maxFiles) problems.push(`${id}: ${files.length} files > ${P.maxFiles}`);
   for (const x of handoffs) if (!deps.includes(x)) problems.push(`${id}: loads H:${x} but doesn't depend on it`);
+  const criteria = (field('Acceptance') || '').split(';').filter(s => s.trim()).length;
+  if (criteria > 3) problems.push(`${id}: ${criteria} acceptance criteria > 3 (split the task)`);
 }
+// Unresolved placeholders and likely secrets, in both files
+const PLACEHOLDER = /\bTBD\b|\bTODO\b|\?\?\?|\{\{[^}]*\}\}/;
+const SECRET = /\bsk_(live|test)_[A-Za-z0-9]{8,}|\bwhsec_[A-Za-z0-9]{8,}|\bghp_[A-Za-z0-9]{20,}|\bAKIA[0-9A-Z]{16}\b|-----BEGIN [A-Z ]*PRIVATE KEY-----|\b[a-z]+:\/\/[^\s:@\/]+:[^\s@\/]+@|\b(password|passwd|secret|token|api[_-]?key)\s*[:=]\s*['"]?[^\s'"`]{8,}/i;
+for (const [name, text] of [['brief.md', brief], ['tasks.md', md]])
+  text.split('\n').forEach((line, i) => {
+    if (PLACEHOLDER.test(line)) problems.push(`${name}:${i + 1}: unresolved placeholder: "${line.trim().slice(0, 60)}"`);
+    if (SECRET.test(line)) problems.push(`${name}:${i + 1}: looks like a secret value; refer to it by env var name only`);
+  });
 const ids = tasks.map(t => t.id);
 tasks.forEach((t, i) => t.deps.forEach(d => { const j = ids.indexOf(d);
   if (j < 0) problems.push(`${t.id}: unknown dep ${d}`); else if (j >= i) problems.push(`${t.id}: dep ${d} is not earlier`); }));

@@ -9,6 +9,15 @@ Turn an MVP into a build plan that someone can work through **one Claude session
 
 Follow these steps in order. Do not skip the two confirmation gates (step 2 and step 5).
 
+## Step 0: Check for an existing plan
+
+Before anything else, check whether `.mvp/tasks.md` already exists (in the tool too, if the user says their plan lives there). If it exists and still has unfinished tasks (`[ ]` or `[~]`), **stop and ask** before doing anything else. Give the user three options:
+1. **Keep building.** Suggest "next task" instead; don't re-plan.
+2. **Re-plan what's left.** Keep every `[x]` task, its ID and its handoff exactly as they are, and re-plan only the unfinished tasks. New tasks continue the ID sequence. Later tasks that are still valid keep their IDs.
+3. **Start over.** Move the old `.mvp/` to `.mvp/archive-<YYYY-MM-DD>/` first. **Never delete a plan or its handoffs.**
+
+If every task in the existing plan is `[x]`, say the plan is complete and ask whether this is a new MVP or v2 of the same product. For v2, continue the ID sequence and keep the old brief as the base for the new one.
+
 ## Step 1: Intake
 
 Read `references/intake.md`, then work out which input you have. Several can apply at once.
@@ -33,6 +42,10 @@ Show it **in chat** and ask the user to confirm or correct it. **Do not decompos
 
 The confirmed version becomes `.mvp/brief.md`. It is the *only* project-wide context that future task sessions load, so everything in it has to be worth loading every time.
 
+Two rules for the brief:
+- **No unresolved placeholders.** If something is still `TBD`, `TODO` or `???`, either ask the user or pick a sensible default and record it under Assumptions. Unresolved answers turn into guesses later, and the checker rejects them.
+- **No secrets.** Never paste API keys, passwords or tokens into the brief or the plan, even if the user's spec contains them. `.mvp/` gets committed to git. Refer to secrets by environment variable name only, e.g. `STRIPE_SECRET_KEY`.
+
 ## Step 3: Phases
 
 Read `references/decomposition.md`. Produce 3–6 phases in dependency order. Each phase gets:
@@ -47,7 +60,7 @@ For a codebase input, leave out work that is already built. Partial work becomes
 Split each phase into tasks, then **run every task through the sizing checklist** in `references/decomposition.md`, using the thresholds from the user's plan profile. Any task that fails a check gets split. Sizes are **S or M only**; anything that would be L gets split before it is written down.
 
 Every task must have:
-- An **ID** (`T-001`, …), title, goal and acceptance criteria.
+- An **ID** (`T-001`, …), title, goal, and **1–3 acceptance criteria**, separated by semicolons. Needing more than 3 is a sign the task should be split.
 - A **size** (S/M) and **dependencies** (task IDs).
 - A **Model** hint, `light` or `heavy`, following the rules in `decomposition.md`. Most tasks should be `light`.
 - **Sub-tasks as checkpoints**, 2–6 per task. Each one is small enough to commit on its own, so a task cut off by the usage limit can resume from the last checked sub-task.
@@ -60,11 +73,13 @@ Every task must have:
 
 ## Step 5: Review → gate
 
-**Write, then validate.** This is the only place the plan files get written.
+**Write, then validate.** This is the only place the plan files get written. Step 0 has already made sure you won't overwrite an unfinished plan.
 1. Write `.mvp/brief.md` and `.mvp/tasks.md` (the tasks.md header can leave the window estimate as `~?`).
 2. Run `node <this skill's dir>/scripts/check-plan.mjs .mvp <pro|max5|max20>`. It checks:
    - size labels and models
+   - acceptance criteria (1–3 per task)
    - sub-task counts and the final "Verify" step
+   - unresolved placeholders (`TBD`, `TODO`, `???`) and likely secrets in the brief or the plan
    - handoff limits, and handoffs missing from "Depends on"
    - dependency order
    - that the header's window range matches the script's estimate

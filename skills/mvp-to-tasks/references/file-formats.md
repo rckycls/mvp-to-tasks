@@ -60,6 +60,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Phase 1: <Name>
 **Goal:** <one sentence> · **Exit:** <observable criterion>
+<!-- next-task adds "**Exit check:** passed <date> · <evidence>" here when the phase is verified end to end -->
 
 ### [ ] T-001 · <Title> · S
 - **Goal:** <one sentence>
@@ -108,6 +109,7 @@ _Done: <YYYY-MM-DD>_
 **Gotchas:** <anything surprising: env vars, quirks, workarounds, known limits>
 **For next tasks:** <what downstream tasks must know or reuse>
 **Verify:** <command or steps that prove it works>
+**Evidence:** <command → key result lines, exit code> (required before the task can be marked [x])
 ```
 
 ---

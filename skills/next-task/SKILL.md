@@ -16,7 +16,8 @@ This skill does one task per session. It loads as little as possible, writes a h
 Choose the task in this order:
 1. If the user named a task ("work on T-012"), use that one.
 2. Otherwise, **resume** any task marked `[~]`, starting at its first unchecked sub-task.
-3. Otherwise, take the first `[ ]` task whose dependencies are all `[x]`.
+3. Otherwise, if a phase is fully `[x]` but has no passed exit check, run its **Phase exit check** (below) instead of a task.
+4. Otherwise, take the first `[ ]` task whose dependencies are all `[x]`.
 
 State which task you picked and why in one line, e.g. "Resuming T-004 at sub-task 3/4." If every remaining task is blocked, list what blocks each one and stop.
 
@@ -40,10 +41,14 @@ Every task has a `Model:` hint. `light` runs on **Sonnet** and `heavy` runs on *
   - the task ID and title
   - the paths to `.mvp/brief.md`, `.mvp/tasks.md` and `.mvp/handoffs/`
   - the resume point, and your keep/discard decision if resuming
-  - the full text of Steps 3–6 of this skill
+  - the full text of Steps 3–6 and the "Never write secrets" section of this skill
 - **Tell the subagent it can't ask the user questions.** If it hits a decision that belongs to the user, or a blocker, it must write its checkpoint line, stop, and return the question. Relay the question to the user, then continue in a new subagent after they answer.
 - **When the subagent returns,** check that the task's sub-tasks are ticked and that the handoff (or `.wip.md`) exists, then do Step 7.
 - **If the chosen model isn't available** (plan or organization limits), fall back to the session's model and say so.
+
+**Escalation.** If a Sonnet subagent comes back with a `[escalate]` line in the `.wip.md`, start a **new Opus subagent** to resume the same task. Give it the resume point and the `[escalate]` note, so it starts from what was tried instead of from scratch. Tell the user in one line, e.g. "T-006 was harder than planned; switching to Opus to finish it." In the handoff's Gotchas, note that the task needed Opus, so similar future tasks can be tagged `heavy`. Escalate only once per task: if Opus fails too, stop and ask the user.
+
+When you can't choose a model (see below) and hit an `[escalate]`, tell the user: "This light task is stuck on the current model. Switching to Opus in the model picker and saying 'next task' will resume it." Then stop.
 
 **If you can't choose a model** (claude.ai, or no subagent support): do Steps 3–6 yourself. If the hint doesn't match the model the user has selected, say so in one line before starting, then continue on the current model without waiting. Use one of these:
 - Light task on Opus: "This task is light; Sonnet is enough and uses less of your limit. You can switch in the model picker, or I'll continue as is."
@@ -85,15 +90,20 @@ Files this task creates or edits (including generated scaffolding and config) do
 - [2] …
 ```
 
-## Step 5: Verify
+## Step 5: Verify, and capture the proof
 Run the check from the task's acceptance criteria (a test, a build, a curl request, or manual steps). If it fails, fix the problem within this task. If a fix needs work that belongs to another task, write that down in the handoff and don't expand the scope.
+
+**Capture evidence.** Save the exact command(s) you ran and the key result lines, e.g. `pnpm test → Tests 4 passed (4), exit 0`. For a manual check, write what you did and what you saw, e.g. `opened /t/ada in 2 timezones → slots shifted by 5h`. This goes into the handoff's **Evidence** line. **No evidence, no `[x]`.** If you can't produce passing evidence, leave the task `[~]`, write down what's failing in the `.wip.md`, and tell the user.
+
+**Stuck on a light task?** If a `light` task's check still fails after two genuine fix attempts, stop fixing. Append `- [escalate] <what fails and what you tried>` to the `.wip.md`, commit, and hand back. See "Escalation" under Model routing.
 
 ## Step 6: Write the handoff (200 words max)
 Create `.mvp/handoffs/T-xxx.md`. Base it on the checkpoint lines in `T-xxx.wip.md`, merged into a summary rather than copied line by line. **Facts only.** The next session reads this *instead of* this conversation and the code, so a wrong statement here is worse than a missing one.
 
 Before saving it, do both of these checks:
 - **Fact-check.** Check every file, route and claim ("removed X", "Y is gitignored") against the working tree, e.g. with `git status`, `git diff --stat <task's first commit>^`, or `ls`. Tools can re-create files you deleted, and checkpoint notes can be out of date.
-- **Word count.** Count the words. If there are more than 200, cut them: drop anything a successor could learn from a file name, keep the gotchas, and shorten decisions to "X, because Y".
+- **Word count.** Count the words, excluding the Evidence line. If there are more than 200, cut them: drop anything a successor could learn from a file name, keep the gotchas, and shorten decisions to "X, because Y".
+- **Secrets.** Make sure it contains no secret values (see "Never write secrets" below).
 
 Then **delete the `.wip.md` file** and commit the deletion together with the handoff. Deleting it in the final commit is expected.
 
@@ -107,13 +117,29 @@ _Done: <YYYY-MM-DD>_
 **Gotchas:** <env vars, quirks, workarounds, known limits>
 **For next tasks:** <what downstream tasks must know or reuse>
 **Verify:** <command or steps that prove it works>
+**Evidence:** <command → key result lines, exit code> (from Step 5; required)
 ```
 
 Then do the following:
-- Mark the task `[x]` in tasks.md.
+- Mark the task `[x]` in tasks.md. Only do this if the handoff has an Evidence line showing a pass.
 - If the task has a `Link:`, post the handoff as a comment on the linked item and set it to Done. If the connector isn't available in this session, say so and skip it; tasks.md is the source of truth.
 - **Brief upkeep.** If this task changed something project-wide (stack, convention, data model, key decision), update the matching `brief.md` section in 1–2 lines and bump `_Last updated_`. If nothing changed, leave the brief untouched, including the date. Keep the brief to one page: if it grows, compress older items instead of appending.
 - **Downstream context.** If this task created files that later tasks will need, but those tasks don't list them, add the files to the later tasks' "Context to load". To find those tasks, search for the `Context to load` lines instead of reading tasks.md.
+
+- **Phase end.** If this was the last task in its phase, tell the user the phase's exit check is next (see "Phase exit check"). Don't run it in this session.
+
+## Never write secrets
+The files in `.mvp/` are committed to git and often pushed to GitHub, and handoffs may be posted to a PM tool. **Never write secret values** in the brief, tasks.md, `.wip.md`, handoffs, or PM tool comments. That covers API keys, tokens, passwords, connection strings with credentials, webhook secrets and private URLs.
+- Refer to secrets by **name only**: "needs `STRIPE_SECRET_KEY` in `.env`" is fine; its value is not.
+- Before each commit, search the staged `.mvp/` changes for likely secrets, e.g. `sk_live`, `sk_test`, `whsec_`, `password=`, `token=`, `postgres://user:pass@`, or long random strings. If you find one, remove it before committing.
+- If a secret was already committed, tell the user right away. It must be rotated; deleting it from the file isn't enough.
+
+## Phase exit check
+Each phase has an **Exit** criterion, e.g. "a tutor can sign in and land on `/dashboard`". Passing each task's own check doesn't prove that the pieces work together, so the exit check runs as its own short session.
+- **When:** in Step 2, if every task in a phase is `[x]` but the phase has no `**Exit check:** passed` line, do the exit check **before** starting any task in the next phase.
+- **How:** load `brief.md`, the phase block and the phase's handoffs (only their Verify and Evidence lines). Run the full test suite and the build, then walk through the exit criterion end to end, the way a user would.
+- **Pass:** add `**Exit check:** passed <YYYY-MM-DD> · <evidence>` under the phase heading in tasks.md, commit, and stop.
+- **Fail:** don't fix it inline. Add a fix task to the end of that phase, e.g. `T-008a · Fix: <what broke> · S`, with its own Model hint, Depends on, Context to load and sub-tasks. Commit, and tell the user it's the next task. The exit check runs again after it.
 
 ## Step 7: Stop
 Report in about 4 lines:

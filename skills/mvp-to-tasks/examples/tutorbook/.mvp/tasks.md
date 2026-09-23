@@ -135,7 +135,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - **Goal:** A pending booking is paid through Stripe and confirmed by the webhook.
 - **Depends on:** T-008, T-009
 - **Model:** heavy
-- **Acceptance:** After reserving, the student is redirected to Checkout; a test payment makes the booking `confirmed`; an expired session makes it `cancelled`; replaying a webhook has no side effects.
+- **Acceptance:** Reserving redirects to Checkout, and a test payment makes the booking `confirmed`; an expired session makes it `cancelled`; replaying a webhook has no side effects.
 - **Context to load:** brief#Key decisions · H:T-008, H:T-009 · files: `src/app/t/[slug]/` (booking action), `prisma/schema.prisma`
 - **Link:**
 - Sub-tasks:
@@ -201,7 +201,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - **Goal:** A student can move their session once, up to 24 hours before it.
 - **Depends on:** T-008, T-011
 - **Model:** light
-- **Acceptance:** `/r/<token>` shows open slots; choosing one moves the booking (same payment) and sets `rescheduledAt`; the link is rejected when used a second time or within 24 hours of the session; both sides are emailed.
+- **Acceptance:** Choosing a new slot at `/r/<token>` moves the booking (same payment), sets `rescheduledAt` and emails both sides; the link is rejected when used a second time; it's also rejected within 24 hours of the session.
 - **Context to load:** brief#Data model · H:T-008, H:T-011 · files: `src/lib/slots.ts`, `src/lib/email.ts`, `src/app/t/[slug]/`
 - **Link:**
 - Sub-tasks:
